@@ -28,8 +28,8 @@
     <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
 
     <!-- SIDEBAR BÊN TRÁI -->
-    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-64 bg-slate-900 text-slate-200 flex-shrink-0 flex flex-col justify-between h-full transition-all duration-300 -translate-x-full md:translate-x-0 border-r border-slate-800/80 shadow-2xl md:shadow-none">
-        <div class="w-64">
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-64 bg-slate-900 text-slate-200 flex-shrink-0 flex flex-col justify-between h-full transition-all duration-300 -translate-x-full md:translate-x-0 overflow-hidden border-r border-slate-800/80 shadow-2xl md:shadow-none">
+        <div class="w-64 overflow-hidden">
             <!-- BRAND HEADER -->
             <div class="h-16 flex items-center justify-between px-5 bg-slate-950/80 border-b border-slate-800">
                 <div class="flex items-center gap-3">
@@ -818,15 +818,14 @@
         if (modal) modal.classList.add('hidden');
     }
 
-    // 3. Đóng / mở Sidebar mượt mà
+    // 3. Đóng / mở Sidebar mượt mà (Trượt ngang hoàn hảo, không tràn chữ)
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
         const isDesktop = window.innerWidth >= 768;
 
         if (isDesktop) {
-            sidebar.classList.toggle('md:w-0');
-            sidebar.classList.toggle('w-64');
+            sidebar.classList.toggle('md:-ml-64');
         } else {
             sidebar.classList.toggle('-translate-x-full');
             overlay.classList.toggle('hidden');
