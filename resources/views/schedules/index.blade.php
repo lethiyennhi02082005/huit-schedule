@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HUIT Schedule Hub — Quản lý & Phân lịch Giảng dạy Đa cơ sở</title>
+    <meta name="suggest-api-url" content="{{ url('/api/suggest-teachers') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -23,11 +24,7 @@
 <body class="bg-slate-50 font-sans antialiased text-slate-800 overflow-hidden">
 
 <div class="h-screen flex overflow-hidden">
-
-    <!-- LỚP PHỦ MỜ KHI MỞ MENU MOBILE -->
     <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
-
-    <!-- SIDEBAR BÊN TRÁI -->
     <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-64 bg-slate-900 text-slate-200 flex-shrink-0 flex flex-col justify-between h-full transition-all duration-300 -translate-x-full md:translate-x-0 overflow-hidden border-r border-slate-800/80 shadow-2xl md:shadow-none">
         <div class="w-64 overflow-hidden">
             <!-- BRAND HEADER -->
@@ -46,7 +43,6 @@
                 </button>
             </div>
 
-            <!-- NAVIGATION LINKS -->
             <nav class="p-3.5 space-y-1 text-sm">
                 <div class="text-[10px] uppercase text-slate-400 font-bold px-3 py-2 tracking-wider">Bảng Điều Khiển</div>
                 
@@ -83,8 +79,6 @@
                 </button>
             </nav>
         </div>
-
-        <!-- USER FOOTER -->
         <div class="w-64 p-4 border-t border-slate-800 bg-slate-950/60">
             <div class="flex items-center gap-3 mb-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-500/30 to-indigo-500/20 border border-blue-400/30 text-blue-400 flex items-center justify-center font-bold uppercase text-sm">
@@ -107,10 +101,8 @@
         </div>
     </aside>
 
-    <!-- KHU VỰC NỘI DUNG CHÍNH (BÊN PHẢI) -->
     <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-slate-100/60">
-        
-        <!-- TOPBAR CỐ ĐỊNH -->
+      
         <header class="h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between flex-shrink-0 z-20 shadow-xs">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" title="Ẩn / Hiện thanh menu" class="w-9 h-9 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 flex items-center justify-center transition">
@@ -129,7 +121,6 @@
                 </span>
             </div>
 
-            <!-- TÌM KIẾM NHANH TRÊN HEADER & THÔNG TIN HỌC KỲ -->
             <div class="flex items-center gap-3">
                 <div class="relative hidden sm:block">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
@@ -151,11 +142,10 @@
             </div>
         </header>
 
-        <!-- NỘI DUNG CUỘN ĐỘC LẬP -->
+  
         <main id="mainContent" class="flex-1 overflow-y-auto p-4 sm:p-6 scroll-smooth">
             <div class="space-y-6 max-w-7xl w-full mx-auto pb-12">
 
-                <!-- THÔNG BÁO FLASH MESSAGE -->
                 @if(session('success'))
                     <div class="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl shadow-sm animate-fade-in">
                         <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center flex-shrink-0">
@@ -180,7 +170,6 @@
                     </div>
                 @endif
 
-                <!-- BANNER CÁ NHÂN HÓA DÀNH CHO GIẢNG VIÊN -->
                 @if($user->role === 'teacher')
                 <div class="bg-gradient-to-r from-blue-800 via-indigo-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
                     <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -212,7 +201,6 @@
                 </div>
                 @endif
 
-                <!-- 4 THẺ KPI THỐNG KÊ NHANH -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition flex items-center justify-between">
                         <div>
@@ -269,10 +257,8 @@
                 </div>
 
                 @if($user->role === 'admin')
-                <!-- HÀNG 2: FORM THÊM / PHÂN LỊCH THÔNG MINH (2/3) + BIỂU ĐỒ PHÂN BỔ (1/3) -->
                 <div id="form-phan-lich" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
-                    <!-- FORM PHÂN LỊCH THÔNG MINH -->
+               
                     <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col justify-between">
                         <div>
                             <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/70 flex flex-wrap items-center justify-between gap-2">
@@ -387,7 +373,6 @@
                         </div>
                     </div>
 
-                    <!-- BIỂU ĐỒ PHÂN BỔ CƠ SỞ (CHART.JS) -->
                     <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between overflow-hidden">
                         <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/70">
                             <h2 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
@@ -399,10 +384,9 @@
 
                         <div class="p-6 flex-1 flex flex-col items-center justify-center">
                             <div class="relative w-full" style="height: 220px;">
-                                <canvas id="branchChart"></canvas>
+                                <canvas id="branchChart" data-labels="{{ json_encode($branchStats->pluck('branch_name')) }}" data-counts="{{ json_encode($branchStats->pluck('schedules_count')) }}"></canvas>
                             </div>
 
-                            <!-- DANH SÁCH CHI TIẾT TỪNG CƠ SỞ DƯỚI BIỂU ĐỒ -->
                             <div class="w-full mt-4 space-y-2 border-t border-slate-100 pt-3">
                                 @foreach($branchStats as $idx => $stat)
                                 <div class="flex items-center justify-between text-xs">
@@ -423,10 +407,8 @@
                 </div>
                 @endif
 
-                <!-- HÀNG 3: BẢNG & LƯỚI THỜI KHÓA BIỂU -->
                 <div id="bang-tkb" class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
                     
-                    <!-- THANH CÔNG CỤ BẢNG: TAB CHUYỂN ĐỔI CHẾ ĐỘ XEM & LỌC -->
                     <div id="bo-loc-lich" class="px-6 py-4 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-slate-50/70">
                         <div class="flex flex-wrap items-center gap-3">
                             <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
@@ -437,7 +419,6 @@
                                 </span>
                             </h2>
 
-                            <!-- NÚT CHUYỂN ĐỔI 2 CHẾ ĐỘ XEM (VIEW TOGGLE) -->
                             <div id="viewToggleContainer" class="inline-flex p-1 bg-slate-200/80 rounded-xl text-xs font-bold">
                                 <button type="button" id="btnViewGrid" onclick="switchView('grid')" class="px-3 py-1.5 rounded-lg bg-white text-blue-700 shadow-xs transition flex items-center gap-1.5">
                                     <i class="fa-solid fa-table-cells"></i> Lưới Tuần (Thứ x Ca)
@@ -483,10 +464,9 @@
                         </div>
                     </div>
 
-                    <!-- CHẾ ĐỘ XEM 1: LƯỚI MA TRẬN THỜI KHÓA BIỂU TUẦN (WEEKLY GRID) -->
                     <div id="weeklyGridView" class="p-4 sm:p-6 overflow-x-auto">
                         <div class="min-w-[900px]">
-                            <!-- BẢNG MA TRẬN 6 NGÀY (THỨ 2 ĐẾN THỨ 7) X 4 CA HỌC -->
+
                             @php
                                 $shiftsList = ['Sáng (Tiết 1-3)', 'Sáng (Tiết 4-6)', 'Chiều (Tiết 7-9)', 'Chiều (Tiết 10-12)'];
                                 $daysList = [2, 3, 4, 5, 6, 7];
@@ -515,7 +495,6 @@
                                     </span>
                                 </div>
 
-                                <!-- CÁC CỘT TỪ THỨ 2 ĐẾN THỨ 7 -->
                                 @foreach($daysList as $d)
                                     @php
                                         $cellSchedules = $schedules->filter(fn($s) => $s->day_of_week == $d && $s->shift_or_periods === $shift);
@@ -568,7 +547,6 @@
                         </div>
                     </div>
 
-                    <!-- CHẾ ĐỘ XEM 2: DANH SÁCH BẢNG CHI TIẾT (TABLE VIEW) -->
                     <div id="tableView" class="overflow-x-auto hidden">
                         <table id="scheduleDataTable" class="w-full text-left border-collapse text-sm">
                             <thead>
@@ -658,7 +636,6 @@
                                         </span>
                                     </td>
 
-                                    <!-- THAO TÁC: SỬA & XÓA (ADMIN) -->
                                     @if($user->role === 'admin')
                                     <td class="py-4 px-5 text-right whitespace-nowrap no-print">
                                         <button type="button"
@@ -673,7 +650,7 @@
                                             class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl text-xs font-bold transition mr-1.5">
                                             <i class="fa-solid fa-pen-to-square mr-1"></i> Sửa
                                         </button>
-                                        <form action="{{ route('schedules.destroy', $item) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa ca học [{{ $item->subject_name }}] này?')" class="inline">
+                                        <form action="{{ route('schedules.destroy', $item) }}" method="POST" onsubmit="return confirm('Xác nhận xóa ca giảng dạy này?')" class="inline">
                                             @csrf @method('DELETE')
                                             <button type="submit" title="Xóa ca dạy" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl text-xs font-bold transition">
                                                 <i class="fa-solid fa-trash-can mr-1"></i> Xóa
@@ -697,7 +674,6 @@
                         </table>
                     </div>
 
-                    <!-- FOOTER BẢNG -->
                     <div class="px-6 py-3 bg-slate-50 border-t border-slate-200/80 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
                         <div>
                             Hiển thị <span class="font-bold text-slate-800">{{ $schedules->count() }}</span> ca giảng dạy trong hệ thống
@@ -889,7 +865,8 @@
     }
 
     // 6. API Gợi ý Giảng viên rảnh & Đánh giá lộ trình di chuyển
-    const suggestApiUrl = "{{ url('/api/suggest-teachers') }}";
+    const suggestApiMeta = document.querySelector('meta[name="suggest-api-url"]');
+    const suggestApiUrl = suggestApiMeta ? suggestApiMeta.getAttribute('content') : '/api/suggest-teachers';
 
     function fetchSuggestions() {
         const branchEl = document.getElementById('branch_id');
@@ -940,18 +917,18 @@
                 console.error("Lỗi gọi API gợi ý:", err);
             });
     }
-</script>
 
-@if($user->role === 'admin')
-<script>
+    // 7. Khởi tạo Biểu đồ & Tải gợi ý khi trang sẵn sàng
     document.addEventListener('DOMContentLoaded', () => {
         fetchSuggestions();
 
-        const labels = @json($branchStats->pluck("branch_name"));
-        const counts = @json($branchStats->pluck("schedules_count"));
-
         const ctx = document.getElementById('branchChart');
         if (ctx) {
+            const rawLabels = ctx.getAttribute('data-labels') || '[]';
+            const rawCounts = ctx.getAttribute('data-counts') || '[]';
+            const labels = JSON.parse(rawLabels);
+            const counts = JSON.parse(rawCounts);
+
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -988,7 +965,6 @@
         }
     });
 </script>
-@endif
 
 </body>
 </html>
