@@ -527,7 +527,16 @@
                                                 <div class="font-bold text-blue-900 text-xs leading-tight mb-1 flex items-center justify-between">
                                                     <span class="truncate">{{ $sch->subject_name }}</span>
                                                     @if($user->role === 'admin')
-                                                    <button type="button" onclick="openEditModal({{ json_encode($sch) }})" title="Sửa ca dạy" class="text-blue-500 hover:text-blue-700 ml-1 no-print">
+                                                    <button type="button"
+                                                        data-id="{{ $sch->id }}"
+                                                        data-branch="{{ $sch->branch_id }}"
+                                                        data-teacher="{{ $sch->teacher_id }}"
+                                                        data-day="{{ $sch->day_of_week }}"
+                                                        data-shift="{{ $sch->shift_or_periods }}"
+                                                        data-subject="{{ $sch->subject_name }}"
+                                                        data-room="{{ $sch->room }}"
+                                                        onclick="openEditModalFromEl(this)"
+                                                        title="Sửa ca dạy" class="text-blue-500 hover:text-blue-700 ml-1 no-print">
                                                         <i class="fa-solid fa-pen-to-square text-[11px]"></i>
                                                     </button>
                                                     @endif
@@ -652,7 +661,16 @@
                                     <!-- THAO TÁC: SỬA & XÓA (ADMIN) -->
                                     @if($user->role === 'admin')
                                     <td class="py-4 px-5 text-right whitespace-nowrap no-print">
-                                        <button type="button" onclick="openEditModal({{ json_encode($item) }})" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl text-xs font-bold transition mr-1.5">
+                                        <button type="button"
+                                            data-id="{{ $item->id }}"
+                                            data-branch="{{ $item->branch_id }}"
+                                            data-teacher="{{ $item->teacher_id }}"
+                                            data-day="{{ $item->day_of_week }}"
+                                            data-shift="{{ $item->shift_or_periods }}"
+                                            data-subject="{{ $item->subject_name }}"
+                                            data-room="{{ $item->room }}"
+                                            onclick="openEditModalFromEl(this)"
+                                            class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl text-xs font-bold transition mr-1.5">
                                             <i class="fa-solid fa-pen-to-square mr-1"></i> Sửa
                                         </button>
                                         <form action="{{ route('schedules.destroy', $item) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa ca học [{{ $item->subject_name }}] này?')" class="inline">
@@ -796,19 +814,19 @@
     }
 
     // 2. Mở / Đóng Modal Chỉnh sửa Lịch Dạy (Edit Modal)
-    function openEditModal(schedule) {
+    function openEditModalFromEl(el) {
         const modal = document.getElementById('editModal');
         if (!modal) return;
 
         const form = document.getElementById('editScheduleForm');
-        form.action = `/schedules/${schedule.id}`;
+        form.action = '/schedules/' + el.dataset.id;
 
-        document.getElementById('edit_branch_id').value = schedule.branch_id;
-        document.getElementById('edit_teacher_id').value = schedule.teacher_id;
-        document.getElementById('edit_day_of_week').value = schedule.day_of_week;
-        document.getElementById('edit_shift_or_periods').value = schedule.shift_or_periods;
-        document.getElementById('edit_subject_name').value = schedule.subject_name;
-        document.getElementById('edit_room').value = schedule.room;
+        document.getElementById('edit_branch_id').value = el.dataset.branch;
+        document.getElementById('edit_teacher_id').value = el.dataset.teacher;
+        document.getElementById('edit_day_of_week').value = el.dataset.day;
+        document.getElementById('edit_shift_or_periods').value = el.dataset.shift;
+        document.getElementById('edit_subject_name').value = el.dataset.subject;
+        document.getElementById('edit_room').value = el.dataset.room;
 
         modal.classList.remove('hidden');
     }
@@ -929,8 +947,8 @@
     document.addEventListener('DOMContentLoaded', () => {
         fetchSuggestions();
 
-        const labels = JSON.parse('{!! json_encode($branchStats->pluck("branch_name")) !!}');
-        const counts = JSON.parse('{!! json_encode($branchStats->pluck("schedules_count")) !!}');
+        const labels = @json($branchStats->pluck("branch_name"));
+        const counts = @json($branchStats->pluck("schedules_count"));
 
         const ctx = document.getElementById('branchChart');
         if (ctx) {
