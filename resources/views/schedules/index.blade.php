@@ -13,9 +13,9 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         @media print {
-            aside, header, #form-phan-lich, #bo-loc-lich, .no-print { display: none !important; }
+            aside, header, #form-phan-lich, #bo-loc-lich, .no-print, #viewToggleContainer, #editModal { display: none !important; }
             main { overflow: visible !important; padding: 0 !important; }
-            #bang-tkb { border: none !important; shadow: none !important; }
+            #bang-tkb { border: none !important; box-shadow: none !important; }
             body { background: white !important; color: black !important; }
         }
     </style>
@@ -59,19 +59,23 @@
                 <div class="text-[10px] uppercase text-slate-400 font-bold px-3 pt-3 pb-1 tracking-wider">Quản Trị Đào Tạo</div>
                 <a href="#form-phan-lich" onclick="scrollToSection(event, 'form-phan-lich')" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium">
                     <i class="fa-solid fa-calendar-plus w-4 text-center text-blue-400"></i>
-                    <span>Phân lịch & Gợi ý GV</span>
+                    <span>Thêm / Phân Lịch Mới</span>
                 </a>
                 <a href="#bo-loc-lich" onclick="scrollToSection(event, 'bo-loc-lich')" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium">
                     <i class="fa-solid fa-filter w-4 text-center text-amber-400"></i>
-                    <span>Bộ lọc theo Cơ sở</span>
+                    <span>Bộ lọc theo Cơ sở/GV</span>
                 </a>
                 @endif
 
                 <div class="text-[10px] uppercase text-slate-400 font-bold px-3 pt-3 pb-1 tracking-wider">Thời Khóa Biểu</div>
-                <a href="#bang-tkb" onclick="scrollToSection(event, 'bang-tkb')" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium">
+                <button onclick="switchView('grid')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium text-left">
+                    <i class="fa-solid fa-calendar-week w-4 text-center text-amber-400"></i>
+                    <span>Lưới TKB Tuần (Ma Trận)</span>
+                </button>
+                <button onclick="switchView('table')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium text-left">
                     <i class="fa-solid fa-table-list w-4 text-center text-emerald-400"></i>
-                    <span>Danh sách ca giảng dạy</span>
-                </a>
+                    <span>Danh sách chi tiết</span>
+                </button>
 
                 <button onclick="window.print()" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium text-left">
                     <i class="fa-solid fa-print w-4 text-center text-purple-400"></i>
@@ -176,7 +180,7 @@
                     </div>
                 @endif
 
-                <!-- BANNER CÁ NHÂN HÓA DÀNH RIÊNG CHO GIẢNG VIÊN -->
+                <!-- BANNER CÁ NHÂN HÓA DÀNH CHO GIẢNG VIÊN -->
                 @if($user->role === 'teacher')
                 <div class="bg-gradient-to-r from-blue-800 via-indigo-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
                     <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -190,7 +194,7 @@
                                 Kính chào Thầy/Cô, {{ $user->name }}!
                             </h2>
                             <p class="text-blue-100/80 text-sm mt-1 max-w-2xl leading-relaxed">
-                                Dưới đây là danh sách toàn bộ các ca giảng dạy đã được Phòng Đào tạo phân công trong học kỳ. Vui lòng kiểm tra kỹ cơ sở và phòng học trước mỗi ca dạy.
+                                Dưới đây là thời khóa biểu chi tiết của Thầy/Cô. Bạn có thể xem dưới dạng <strong>Lưới Tuần (Thứ x Ca)</strong> hoặc <strong>Danh sách chi tiết</strong> để nắm rõ cơ sở và phòng học cần đến dạy.
                             </p>
                         </div>
                         <div class="flex items-center gap-3 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 flex-shrink-0">
@@ -265,7 +269,7 @@
                 </div>
 
                 @if($user->role === 'admin')
-                <!-- HÀNG 2: FORM PHÂN LỊCH THÔNG MINH (2/3) + BIỂU ĐỒ PHÂN BỔ (1/3) -->
+                <!-- HÀNG 2: FORM THÊM / PHÂN LỊCH THÔNG MINH (2/3) + BIỂU ĐỒ PHÂN BỔ (1/3) -->
                 <div id="form-phan-lich" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
                     <!-- FORM PHÂN LỊCH THÔNG MINH -->
@@ -278,7 +282,7 @@
                                     </div>
                                     <div>
                                         <h2 class="font-bold text-slate-900 text-sm sm:text-base leading-tight">
-                                            Phân Lịch Giảng Dạy & Gợi Ý GV Trống Lịch
+                                            Thêm Lịch Giảng Dạy Mới (Gợi Ý GV Trống Lịch)
                                         </h2>
                                         <p class="text-[11px] text-slate-500">Tự động phát hiện trùng lịch, phòng học và kiểm tra di chuyển</p>
                                     </div>
@@ -419,20 +423,29 @@
                 </div>
                 @endif
 
-                <!-- HÀNG 3: BẢNG THỜI KHÓA BIỂU TOÀN DIỆN -->
+                <!-- HÀNG 3: BẢNG & LƯỚI THỜI KHÓA BIỂU -->
                 <div id="bang-tkb" class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
                     
-                    <!-- THANH CÔNG CỤ BẢNG: TÌM KIẾM TỨC THÌ & LỌC -->
+                    <!-- THANH CÔNG CỤ BẢNG: TAB CHUYỂN ĐỔI CHẾ ĐỘ XEM & LỌC -->
                     <div id="bo-loc-lich" class="px-6 py-4 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-slate-50/70">
-                        <div>
+                        <div class="flex flex-wrap items-center gap-3">
                             <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
-                                <i class="fa-solid fa-table-cells text-blue-600"></i>
-                                <span>Danh Sách Thời Khóa Biểu</span>
-                                <span id="tableRowsBadge" class="ml-2 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold font-mono">
+                                <i class="fa-solid fa-calendar-days text-blue-600"></i>
+                                <span>Thời Khóa Biểu Chi Tiết</span>
+                                <span id="tableRowsBadge" class="ml-1 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold font-mono">
                                     {{ $schedules->count() }} ca
                                 </span>
                             </h2>
-                            <p class="text-xs text-slate-500 mt-0.5">Lịch giảng dạy chi tiết theo Thứ, Ca, Phòng và Cơ sở</p>
+
+                            <!-- NÚT CHUYỂN ĐỔI 2 CHẾ ĐỘ XEM (VIEW TOGGLE) -->
+                            <div id="viewToggleContainer" class="inline-flex p-1 bg-slate-200/80 rounded-xl text-xs font-bold">
+                                <button type="button" id="btnViewGrid" onclick="switchView('grid')" class="px-3 py-1.5 rounded-lg bg-white text-blue-700 shadow-xs transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-table-cells"></i> Lưới Tuần (Thứ x Ca)
+                                </button>
+                                <button type="button" id="btnViewTable" onclick="switchView('table')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-list-ul"></i> Danh Sách Bảng
+                                </button>
+                            </div>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-2.5">
@@ -446,14 +459,14 @@
                                 </select>
 
                                 <select name="teacher_id" class="rounded-xl border-slate-300 text-xs py-2 px-2.5 bg-white font-medium focus:ring-2 focus:ring-blue-100 outline-none">
-                                    <option value="">-- Tất cả Giảng viên --</option>
+                                    <option value="">-- Chọn Giảng viên cụ thể --</option>
                                     @foreach($teachers as $t)
                                         <option value="{{ $t->id }}" {{ request('teacher_id') == $t->id ? 'selected' : '' }}>{{ $t->full_name }}</option>
                                     @endforeach
                                 </select>
 
                                 <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-xs flex items-center gap-1.5">
-                                    <i class="fa-solid fa-filter"></i> Lọc
+                                    <i class="fa-solid fa-filter"></i> Lọc TKB
                                 </button>
 
                                 @if(request('branch_id') || request('teacher_id'))
@@ -470,8 +483,84 @@
                         </div>
                     </div>
 
-                    <!-- BẢNG DỮ LIỆU -->
-                    <div class="overflow-x-auto">
+                    <!-- CHẾ ĐỘ XEM 1: LƯỚI MA TRẬN THỜI KHÓA BIỂU TUẦN (WEEKLY GRID) -->
+                    <div id="weeklyGridView" class="p-4 sm:p-6 overflow-x-auto">
+                        <div class="min-w-[900px]">
+                            <!-- BẢNG MA TRẬN 6 NGÀY (THỨ 2 ĐẾN THỨ 7) X 4 CA HỌC -->
+                            @php
+                                $shiftsList = ['Sáng (Tiết 1-3)', 'Sáng (Tiết 4-6)', 'Chiều (Tiết 7-9)', 'Chiều (Tiết 10-12)'];
+                                $daysList = [2, 3, 4, 5, 6, 7];
+                            @endphp
+
+                            <div class="grid grid-cols-7 gap-2.5 text-center text-xs font-extrabold uppercase mb-2">
+                                <div class="bg-slate-100 py-3 rounded-xl text-slate-600 border border-slate-200/80">Ca / Buổi</div>
+                                @foreach($daysList as $d)
+                                <div class="bg-blue-50 py-3 rounded-xl text-blue-800 border border-blue-200">
+                                    Thứ {{ $d }}
+                                </div>
+                                @endforeach
+                            </div>
+
+                            @foreach($shiftsList as $shift)
+                            <div class="grid grid-cols-7 gap-2.5 mb-2.5 items-stretch">
+                                <!-- CỘT CA HỌC -->
+                                <div class="bg-slate-100/90 rounded-2xl p-3 flex flex-col justify-center items-center text-center border border-slate-200/70">
+                                    <span class="font-bold text-slate-800 text-xs flex items-center gap-1">
+                                        @if(str_contains($shift, 'Sáng'))
+                                            <i class="fa-regular fa-sun text-amber-500"></i>
+                                        @else
+                                            <i class="fa-solid fa-cloud-moon text-indigo-500"></i>
+                                        @endif
+                                        {{ $shift }}
+                                    </span>
+                                </div>
+
+                                <!-- CÁC CỘT TỪ THỨ 2 ĐẾN THỨ 7 -->
+                                @foreach($daysList as $d)
+                                    @php
+                                        $cellSchedules = $schedules->filter(fn($s) => $s->day_of_week == $d && $s->shift_or_periods === $shift);
+                                    @endphp
+
+                                    <div class="rounded-2xl p-2.5 min-h-[110px] flex flex-col justify-between transition {{ $cellSchedules->count() > 0 ? 'bg-blue-50/70 border border-blue-200 hover:border-blue-400 hover:shadow-xs' : 'bg-slate-50/50 border border-dashed border-slate-200 hover:bg-slate-50' }}">
+                                        @forelse($cellSchedules as $sch)
+                                            <div class="bg-white p-2.5 rounded-xl border border-blue-200/90 shadow-2xs mb-1.5 last:mb-0 text-left">
+                                                <div class="font-bold text-blue-900 text-xs leading-tight mb-1 flex items-center justify-between">
+                                                    <span class="truncate">{{ $sch->subject_name }}</span>
+                                                    @if($user->role === 'admin')
+                                                    <button type="button" onclick="openEditModal({{ json_encode($sch) }})" title="Sửa ca dạy" class="text-blue-500 hover:text-blue-700 ml-1 no-print">
+                                                        <i class="fa-solid fa-pen-to-square text-[11px]"></i>
+                                                    </button>
+                                                    @endif
+                                                </div>
+
+                                                <div class="text-[11px] text-slate-700 font-semibold flex items-center gap-1 truncate mb-0.5">
+                                                    <i class="fa-solid fa-chalkboard-user text-[10px] text-slate-400"></i>
+                                                    <span>{{ $sch->teacher->full_name }}</span>
+                                                </div>
+
+                                                <div class="text-[10px] text-slate-500 truncate mb-1">
+                                                    <i class="fa-solid fa-map-pin text-[9px] text-rose-500"></i>
+                                                    <span>{{ $sch->branch->branch_name }}</span>
+                                                </div>
+
+                                                <div class="inline-block px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-mono text-[10px] font-bold">
+                                                    Phòng: {{ $sch->room }}
+                                                </div>
+                                            </div>
+                                        @empty
+                                            <div class="h-full flex items-center justify-center text-[11px] text-slate-300 font-medium select-none">
+                                                <i class="fa-solid fa-plus text-[9px] mr-1"></i> Trống
+                                            </div>
+                                        @endforelse
+                                    </div>
+                                @endforeach
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- CHẾ ĐỘ XEM 2: DANH SÁCH BẢNG CHI TIẾT (TABLE VIEW) -->
+                    <div id="tableView" class="overflow-x-auto hidden">
                         <table id="scheduleDataTable" class="w-full text-left border-collapse text-sm">
                             <thead>
                                 <tr class="bg-slate-100/80 text-slate-600 uppercase text-[11px] font-extrabold tracking-wider border-b border-slate-200">
@@ -560,9 +649,12 @@
                                         </span>
                                     </td>
 
-                                    <!-- THAO TÁC (CHỈ DÀNH CHO ADMIN) -->
+                                    <!-- THAO TÁC: SỬA & XÓA (ADMIN) -->
                                     @if($user->role === 'admin')
                                     <td class="py-4 px-5 text-right whitespace-nowrap no-print">
+                                        <button type="button" onclick="openEditModal({{ json_encode($item) }})" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl text-xs font-bold transition mr-1.5">
+                                            <i class="fa-solid fa-pen-to-square mr-1"></i> Sửa
+                                        </button>
                                         <form action="{{ route('schedules.destroy', $item) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa ca học [{{ $item->subject_name }}] này?')" class="inline">
                                             @csrf @method('DELETE')
                                             <button type="submit" title="Xóa ca dạy" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl text-xs font-bold transition">
@@ -603,9 +695,130 @@
     </div>
 </div>
 
+<!-- MODAL CHỈNH SỬA LỊCH GIẢNG DẠY (EDIT SCHEDULE MODAL) -->
+@if($user->role === 'admin')
+<div id="editModal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-100 overflow-hidden animate-scale-up">
+        <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-lg"></i>
+                <h3 class="font-bold text-base">Cập Nhật / Sửa Lịch Giảng Dạy</h3>
+            </div>
+            <button type="button" onclick="closeEditModal()" class="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form id="editScheduleForm" method="POST" action="" class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            @csrf
+            @method('PUT')
+
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Cơ sở giảng dạy</label>
+                <select name="branch_id" id="edit_branch_id" required class="w-full rounded-xl border-slate-300 py-2.5 px-3 text-sm focus:border-blue-500 outline-none">
+                    @foreach($branches as $b)
+                        <option value="{{ $b->id }}">{{ $b->branch_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Giảng viên đảm nhiệm</label>
+                <select name="teacher_id" id="edit_teacher_id" required class="w-full rounded-xl border-slate-300 py-2.5 px-3 text-sm focus:border-blue-500 outline-none">
+                    @foreach($teachers as $t)
+                        <option value="{{ $t->id }}">{{ $t->full_name }} ({{ $t->expertise }})</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Thứ</label>
+                <select name="day_of_week" id="edit_day_of_week" required class="w-full rounded-xl border-slate-300 py-2.5 px-3 text-sm focus:border-blue-500 outline-none">
+                    @for($d = 2; $d <= 7; $d++)
+                        <option value="{{ $d }}">Thứ {{ $d }}</option>
+                    @endfor
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Ca học</label>
+                <select name="shift_or_periods" id="edit_shift_or_periods" required class="w-full rounded-xl border-slate-300 py-2.5 px-3 text-sm focus:border-blue-500 outline-none">
+                    <option value="Sáng (Tiết 1-3)">Sáng (Tiết 1-3)</option>
+                    <option value="Sáng (Tiết 4-6)">Sáng (Tiết 4-6)</option>
+                    <option value="Chiều (Tiết 7-9)">Chiều (Tiết 7-9)</option>
+                    <option value="Chiều (Tiết 10-12)">Chiều (Tiết 10-12)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Tên Học phần</label>
+                <input type="text" name="subject_name" id="edit_subject_name" required class="w-full rounded-xl border-slate-300 py-2.5 px-3 text-sm focus:border-blue-500 outline-none">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Phòng học</label>
+                <input type="text" name="room" id="edit_room" required class="w-full rounded-xl border-slate-300 py-2.5 px-3 text-sm focus:border-blue-500 outline-none">
+            </div>
+
+            <div class="sm:col-span-2 flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold transition">
+                    Hủy bỏ
+                </button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-check"></i> Lưu Cập Nhật
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
+
 <!-- JAVASCRIPT XỬ LÝ GIAO DIỆN & TÍNH NĂNG THÔNG MINH -->
 <script>
-    // 1. Đóng / mở Sidebar mượt mà
+    // 1. Chuyển đổi giữa 2 chế độ xem: Lưới Tuần (Weekly Grid) & Danh sách bảng (Table View)
+    function switchView(viewMode) {
+        const gridView = document.getElementById('weeklyGridView');
+        const tableView = document.getElementById('tableView');
+        const btnGrid = document.getElementById('btnViewGrid');
+        const btnTable = document.getElementById('btnViewTable');
+
+        if (viewMode === 'grid') {
+            gridView.classList.remove('hidden');
+            tableView.classList.add('hidden');
+            btnGrid.className = 'px-3 py-1.5 rounded-lg bg-white text-blue-700 shadow-xs transition flex items-center gap-1.5';
+            btnTable.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5';
+        } else {
+            gridView.classList.add('hidden');
+            tableView.classList.remove('hidden');
+            btnTable.className = 'px-3 py-1.5 rounded-lg bg-white text-blue-700 shadow-xs transition flex items-center gap-1.5';
+            btnGrid.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5';
+        }
+    }
+
+    // 2. Mở / Đóng Modal Chỉnh sửa Lịch Dạy (Edit Modal)
+    function openEditModal(schedule) {
+        const modal = document.getElementById('editModal');
+        if (!modal) return;
+
+        const form = document.getElementById('editScheduleForm');
+        form.action = `/schedules/${schedule.id}`;
+
+        document.getElementById('edit_branch_id').value = schedule.branch_id;
+        document.getElementById('edit_teacher_id').value = schedule.teacher_id;
+        document.getElementById('edit_day_of_week').value = schedule.day_of_week;
+        document.getElementById('edit_shift_or_periods').value = schedule.shift_or_periods;
+        document.getElementById('edit_subject_name').value = schedule.subject_name;
+        document.getElementById('edit_room').value = schedule.room;
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+        const modal = document.getElementById('editModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    // 3. Đóng / mở Sidebar mượt mà
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
@@ -620,7 +833,7 @@
         }
     }
 
-    // 2. Cuộn mượt đến từng phần
+    // 4. Cuộn mượt đến từng phần
     function scrollToSection(event, sectionId) {
         event.preventDefault();
         const container = document.getElementById('mainContent');
@@ -636,7 +849,7 @@
         }
     }
 
-    // 3. Tìm kiếm tức thì trong bảng thời khóa biểu (Live Search)
+    // 5. Tìm kiếm tức thì trong bảng thời khóa biểu (Live Search)
     function filterTableInstant() {
         const keyword = document.getElementById('tableQuickSearch').value.toLowerCase().trim();
         const rows = document.querySelectorAll('#scheduleTableBody tr.schedule-row');
@@ -658,7 +871,7 @@
         }
     }
 
-    // 4. API Gợi ý Giảng viên rảnh & Đánh giá lộ trình di chuyển
+    // 6. API Gợi ý Giảng viên rảnh & Đánh giá lộ trình di chuyển
     const suggestApiUrl = "{{ url('/api/suggest-teachers') }}";
 
     function fetchSuggestions() {
